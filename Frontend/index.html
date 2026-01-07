@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Game Mê Cung</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="welcome">
+  <h1>CHÀO MỪNG ĐẾN VỚI GAME MÊ CUNG</h1>
+  <button id="readyBtn">SẴN SÀNG 🚀</button>
+</div>
+
+<div id="modeSelection">
+  <button id="backToWelcome" class="backBtn">← Quay lại</button>
+  <h2>Chọn chế độ:</h2>
+  
+  <!-- Wrap hai nút vào div để ngang hàng -->
+  <div class="mode-buttons">
+    <button id="randomBtn">Ngẫu nhiên 🎲</button>
+    <button id="levelBtn">Mức độ 📊</button>
+  </div>
+  
+  <!-- Hình minh họa mê cung bên dưới nút -->
+  <div id="mazeIllustration">
+    <!-- Fallback online để test (Pixabay maze) - thay src bằng "Image/anh1.webp" nếu local load được -->
+    <img src="../Image/anh1.webp" alt="Minh họa mê cung" class="illustration-img">
+    <!-- <img src="Image/anh1.webp" alt="Minh họa mê cung" class="illustration-img"> -->
+  </div>
+</div>
+
+<div id="difficultySelection">
+  <button id="backToMode" class="backBtn">← Quay lại</button>
+  <h2>Chọn mức độ:</h2>
+  
+  <!-- Wrap ba nút vào div để ngang hàng -->
+  <div class="difficulty-buttons">
+    <button data-diff="10">Dễ 🌟</button>
+    <button data-diff="25">Trung bình ⚡</button>
+    <button data-diff="40">Khó 🔥</button>
+  </div>
+  
+  <!-- Hình minh họa tương tự (nếu muốn, có thể dùng ảnh khác hoặc ẩn bằng CSS) -->
+  <div id="difficultyIllustration">
+    <img src="../Image/anh2.webp" alt="Minh họa mức độ" class="illustration-img">
+    <!-- <img src="Image/anh2.webp" alt="Minh họa mức độ" class="illustration-img"> -->
+  </div>
+</div>
+
+<div id="mazeContainer">
+  <div class="gameLayout">
+    <!-- Maze bên trái -->
+    <div id="mazeSection">
+      <div id="maze"></div>
+      <div id="successMessage">✨ Đã tìm thấy đường đi! ✨</div>
+    </div>
+
+    <!-- Sidebar bên phải: Controls và Metrics -->
+    <div id="sidebar">
+      <div id="controls">
+        <p>Sử dụng WASD hoặc mũi tên để di chuyển. Nhấn ESC để reset.</p>
+        <button id="dfsBtn">Chạy DFS</button>
+        <button id="bfsBtn">Chạy BFS</button>
+        <button id="astarBtn">Chạy A*</button>
+        <button id="resetBtn">Reset</button>
+      </div>
+
+      <div id="metrics">
+        <div>
+          Thời gian: <span id="time">0</span>s |
+          Bước: <span id="steps">0</span> |
+          Nút: <span id="nodes">1</span>
+        </div>
+        <div id="algoMetrics" style="display:none;">
+          Thời gian algo: <span id="algoTime">0</span>s |
+          Đường: <span id="pathLen">0</span> |
+          Mở rộng: <span id="expanded">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
