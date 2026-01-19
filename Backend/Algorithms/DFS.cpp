@@ -5,35 +5,40 @@
 static std::stack<Cell*> st;
 
 void startDFS() {
+    //Kiểm tra điều kiện an toàn
+    if (!startCell || !goalCell) {
+        printf("Lỗi.\n");
+        running = false;
+        return;
+    }
     resetMaze();
+    while (!st.empty()) st.pop(); //Làm rỗng stack
 
-    while (!st.empty()) st.pop();
+    startCell->visited = true; //Khởi tạo ô start
+    startCell->parent = nullptr;//Đánh dấu Node Cha
 
-    startCell->visited = true;
-    startCell->parent = nullptr;
-
-    st.push(startCell);
+    st.push(startCell);//B1
 
     running = true;
     pathFound = false;
 }
 
 void stepDFS() {
-    if (!running || st.empty()) return;
-
-    Cell* current = st.top();
-    st.pop();
-
+    //Kiểm tra đk an toàn
+    if (!running || st.empty() || !goalCell) return;
+    Cell* current = st.top(); //Lấy ra ô trên cùng
+    st.pop(); //Xóa ô trên cùng
     if (current == goalCell) {
-        markPath();
-        running = false;
-        pathFound = true;
+        markPath(); //lần ngược parent để vẽ đường đi
+        running = false; 
+        pathFound = true; 
         return;
     }
-
-    for (Cell* n : getNeighbors(current)) {
-        if (!n->visited) {
-            n->visited = true;
+    for (Cell* n : getNeighbors(current)) // Lấy Ds ô kề
+    {
+        if (!n->visited) // Ktra xem đi chưa
+        {
+            n->visited = true; 
             n->parent = current;
             st.push(n);
         }

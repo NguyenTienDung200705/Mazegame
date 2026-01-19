@@ -17,6 +17,10 @@ void resetMaze();
 void generateMaze(int wallDensity);
 void markPath();
 
+// New: Custom start/goal setting
+void setStartCell(int x, int y);
+void setGoalCell(int x, int y);
+
 // ================= GAMEPLAY / ALGO =================
 // Dùng cho BFS / DFS / A* / Dijkstra (di chuyển 4 hướng)
 std::vector<Cell*> getNeighbors(Cell* c);

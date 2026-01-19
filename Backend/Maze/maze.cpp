@@ -25,6 +25,51 @@ void resetMaze() {
             maze[i][j].h = 0;
             maze[i][j].onPath = false;
         }
+    // Do not reset startCell or goalCell here; they persist across resets
+}
+
+/* ================= SET START/GOAL ================= */
+
+// New: Allow setting custom start position
+void setStartCell(int x, int y) {
+    if (x >= 0 && x < ROWS && y >= 0 && y < COLS && !maze[x][y].wall) {
+        // Clear old start if exists
+        if (startCell) {
+            // Optionally reset old start visual, but since no val=2 there, just set
+            startCell = nullptr;
+        }
+        startCell = &maze[x][y];
+        playerX = x;
+        playerY = y;
+        startCell->g = 0;
+        startCell->parent = nullptr;
+        // Ensure not visited/onPath
+        startCell->visited = false;
+        startCell->onPath = false;
+        printf("Start set to (%d, %d)\n", x, y);  // Debug log
+    } else {
+        printf("Invalid start position: (%d, %d) is wall or out of bounds\n", x, y);
+    }
+}
+
+// New: Allow setting custom goal position
+void setGoalCell(int x, int y) {
+    if (x >= 0 && x < ROWS && y >= 0 && y < COLS && !maze[x][y].wall) {
+        // Clear old goal if exists
+        if (goalCell) {
+            // Optionally reset old goal visual
+            goalCell = nullptr;
+        }
+        goalCell = &maze[x][y];
+        goalCell->g = INT_MAX;
+        goalCell->parent = nullptr;
+        // Ensure not visited/onPath
+        goalCell->visited = false;
+        goalCell->onPath = false;
+        printf("Goal set to (%d, %d)\n", x, y);  // Debug log
+    } else {
+        printf("Invalid goal position: (%d, %d) is wall or out of bounds\n", x, y);
+    }
 }
 
 /* ================= DFS MAZE GENERATION ================= */
@@ -52,6 +97,7 @@ std::vector<Cell*> getDFSNeighbors(Cell* c) {
     }
     return res;
 }
+
 std::vector<Cell*> getNeighbors(Cell* c) {
     std::vector<Cell*> n;
     int dx[4] = { -1, 1, 0, 0 };
@@ -81,7 +127,6 @@ void shuffleDirections(std::vector<Cell*>& v, Difficulty diff) {
         std::shuffle(v.begin(), v.end(), rng);
     }
 }
-
 
 void dfsGenerate(Cell* c, Difficulty diff) {
     c->visited = true;
@@ -142,6 +187,7 @@ void extendDeadEnds(int length) {
 
 /* ================= MAIN GENERATE ================= */
 
+// Modified: No longer auto-sets start/goal; client will call setStartCell/setGoalCell after generation
 void generateMaze(int /*wallDensity*/) {
     srand((unsigned)time(NULL));
 
@@ -154,24 +200,24 @@ void generateMaze(int /*wallDensity*/) {
             maze[i][j].onPath = false;
         }
 
-    // 2️⃣ Start & Goal (tọa độ lẻ)
-    startCell = &maze[1][1];
-    goalCell  = &maze[ROWS - 2][COLS - 2];
+    // 2️⃣ NO AUTO Start & Goal; client sets them via /setStart and /setGoal
+    startCell = nullptr;
+    goalCell = nullptr;
+    playerX = 0;
+    playerY = 0;
 
-    // 3️⃣ DFS sinh mê cung
-    dfsGenerate(startCell, HARD);
+    // 3️⃣ DFS sinh mê cung (start from a default cell, e.g., [1][1], but don't set as start)
+    Cell* genStart = &maze[1][1];
+    dfsGenerate(genStart, HARD);
 
     // 4️⃣ Dead-end dài
     extendDeadEnds(4);
 
-    // 5️⃣ Đảm bảo mở start/goal
-    startCell->wall = false;
-    goalCell->wall = false;
+    // 5️⃣ Ensure generation start is open (but not as player start)
+    genStart->wall = false;
 
     // 6️⃣ Reset cho gameplay
     resetMaze();
-    playerX = startCell->x;
-    playerY = startCell->y;
     running = false;
     pathFound = false;
 }
@@ -179,6 +225,7 @@ void generateMaze(int /*wallDensity*/) {
 /* ================= PATH MARK ================= */
 
 void markPath() {
+    if (!goalCell || !startCell) return;  // Safety check
     Cell* cur = goalCell;
     while (cur && cur != startCell) {
         cur->onPath = true;
@@ -190,26 +237,42 @@ void markPath() {
 
 /* ================= JSON ================= */
 
+/* ================= JSON ================= */
 json mazeToJson() {
-    json j = json::array();
+    json cells = json::array();  // Cells as array
 
     for (int i = 0; i < ROWS; i++) {
         json row = json::array();
         for (int k = 0; k < COLS; k++) {
             int val = maze[i][k].wall ? 1 : 0;
 
+            // Player position
             if (i == playerX && k == playerY)
-                val = 2;          // Player
+                val = 2;  // Player
+            // Goal - override if onPath
+            else if (goalCell && i == goalCell->x && k == goalCell->y)
+                val = maze[i][k].onPath ? 5 : 3;  // 5 if found, else 3
+            // Path
             else if (maze[i][k].onPath)
-                val = 5;          // Path
-            else if (&maze[i][k] == goalCell)
-                val = 3;          // Goal
+                val = 5;  // Path
+            // Visited
             else if (maze[i][k].visited)
-                val = 4;          // Visited
+                val = 4;  // Visited
 
             row.push_back(val);
         }
-        j.push_back(row);
+        cells.push_back(row);
     }
+
+    // FIXED: Root object with flags for JS stop
+    json j;
+    j["cells"] = cells;
+    j["pathFound"] = pathFound;  // Bool
+    j["running"] = running;
+    int pathLen = 0;
+    for (int i = 0; i < ROWS; i++)
+        for (int k = 0; k < COLS; k++)
+            if (maze[i][k].onPath) pathLen++;
+    j["pathLen"] = pathLen;
     return j;
 }

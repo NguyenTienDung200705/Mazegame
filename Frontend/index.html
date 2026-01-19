@@ -9,7 +9,7 @@
 <body>
 
 <div id="welcome">
-  <h1>CHÀO MỪNG ĐẾN VỚI GAME MÊ CUNG</h1>
+  <h1>CHÀO MỪNG ĐẾN VỚI BẢN ĐỒ MÊ CUNG</h1>
   <button id="readyBtn">SẴN SÀNG 🚀</button>
 </div>
 
@@ -61,6 +61,22 @@
     <div id="sidebar">
       <div id="controls">
         <p>Sử dụng WASD hoặc mũi tên để di chuyển. Nhấn ESC để reset.</p>
+        
+        <!-- NEW: Selection Controls - Thêm phần chọn start/goal ở đầu controls -->
+        <div id="selection-controls" style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; background: #f9f9f9;">
+          <h4>Chọn Điểm Bắt Đầu & Kết Thúc</h4>
+          <button id="btn-select-start" style="margin-right: 10px; padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Chọn Điểm Bắt Đầu (Click maze sau)
+          </button>
+          <button id="btn-select-goal" style="margin-right: 10px; padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Chọn Điểm Kết Thúc (Click maze sau)
+          </button>
+          <div id="selection-status" style="margin-top: 5px; font-size: 12px; color: #666;">
+            Chưa chọn điểm nào.
+          </div>
+        </div>
+
+        <!-- Existing algo buttons -->
         <button id="dfsBtn">Chạy DFS</button>
         <button id="bfsBtn">Chạy BFS</button>
         <button id="astarBtn">Chạy A*</button>
